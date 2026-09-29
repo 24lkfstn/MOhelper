@@ -167,7 +167,7 @@
       <div id="chat-box" class="flex-1 overflow-y-auto space-y-2.5 py-2.5 text-xs">
         <div class="bg-cyan-950/30 border-l-2 border-cyan-400 p-2 text-cyan-200">
           <span class="text-[9px] text-cyan-400 block font-bold">[SYSTEM READY]</span>
-          浩賢，NEXUS 控制台已就緒。首次使用請點擊右上角「KEY_CONFIG」綁定金鑰。
+          浩賢，NEXUS 控制台已就緒。點擊下方輸入指令即可對話。
         </div>
       </div>
 
@@ -183,7 +183,6 @@
     let totalTokens = 0;
     let requestCount = 0;
 
-    // 從手機 LocalStorage 讀取 Key，完全不在代碼內公開
     function getStoredKey() {
       return localStorage.getItem("nexus_gemini_key") || "";
     }
@@ -242,7 +241,7 @@
       const loadingId = appendMessage("system", ">>> PROCESSING_STREAM...");
 
       try {
-        const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+        const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
         const response = await fetch(url, {
           method: "POST",
           headers: { 
@@ -305,7 +304,6 @@
       if (el) el.remove();
     }
 
-    // 初始化狀態燈
     updateBadge();
   </script>
 </body>
