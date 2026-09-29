@@ -6,25 +6,26 @@
     <title>MO COMMAND CENTER</title>
     <style>
         :root {
-            --bg-color: #0d1117;
-            --panel-bg: rgba(22, 27, 34, 0.95);
-            --border-color: #30363d;
-            --cyan-accent: #58a6ff;
-            --green-accent: #3fb950;
-            --orange-accent: #d29922;
-            --text-main: #c9d1d9;
-            --text-dim: #8b949e;
+            --bg-color: #050b14;
+            --panel-bg: rgba(10, 22, 40, 0.85);
+            --border-dim: #1d3557;
+            --text-main: #e0fbfc;
+            --text-dim: #5c7f99;
+            --accent-cyan: #00f0ff;
+            --accent-magenta: #ff007f;
+            --accent-green: #00ff66;
+            --accent-warn: #ffaa00;
             --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 50% 0%, #0d2847 0%, transparent 75%),
+                linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 20px 20px, 20px 20px;
             color: var(--text-main);
             font-family: var(--font-mono);
             min-height: 100vh;
@@ -34,190 +35,287 @@
             padding: 16px;
         }
 
-        .terminal-container {
+        .container {
             width: 100%;
-            max-width: 820px;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            max-width: 620px;
             display: flex;
             flex-direction: column;
-            height: 90vh;
-            overflow: hidden;
+            gap: 14px;
         }
 
-        .terminal-header {
-            padding: 12px 16px;
-            background: #161b22;
-            border-bottom: 1px solid var(--border-color);
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            padding: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 210, 255, 0.05);
+        }
+
+        .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .title {
-            color: var(--cyan-accent);
-            font-size: 0.95rem;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .status-badge {
-            font-size: 0.75rem;
-            color: var(--green-accent);
-            border: 1px solid var(--green-accent);
+        .panel-title { color: var(--accent-cyan); display: flex; align-items: center; gap: 6px; }
+        .panel-status {
+            font-size: 0.7rem;
             padding: 2px 8px;
             border-radius: 4px;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
         }
 
-        .config-bar {
-            padding: 8px 16px;
-            background: #0d1117;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            gap: 8px;
+        /* FUEL SECTION */
+        .fuel-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            gap: 12px;
             align-items: center;
         }
 
-        .config-bar input {
-            flex: 1;
-            background: #161b22;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 6px 10px;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            font-family: var(--font-mono);
+        .circle-gauge {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-magenta) 0% 100%, #152238 100% 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .config-bar button {
-            background: #21262d;
-            border: 1px solid var(--border-color);
-            color: var(--cyan-accent);
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: var(--font-mono);
-        }
-
-        .config-bar button:hover {
-            background: #30363d;
-        }
-
-        .terminal-body {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
+        .circle-inner {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #091322;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            justify-content: center;
+            align-items: center;
         }
 
-        .msg-block {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            line-height: 1.5;
-            font-size: 0.9rem;
+        .circle-inner .pct { font-size: 0.85rem; font-weight: bold; color: var(--text-main); }
+        .circle-inner .lbl { font-size: 0.55rem; color: var(--text-dim); }
+
+        .metric-card {
+            background: rgba(13, 27, 46, 0.8);
+            border: 1px solid rgba(0, 210, 255, 0.15);
+            border-radius: 6px;
+            padding: 8px 10px;
         }
 
-        .msg-system {
+        .metric-card .title { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+        .metric-card .val { font-size: 0.95rem; font-weight: bold; color: var(--text-main); }
+
+        /* 4 SECTORS */
+        .nodes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .node-box {
+            background: rgba(13, 27, 46, 0.6);
+            border: 1px solid rgba(0, 210, 255, 0.15);
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .node-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .node-name { font-size: 0.8rem; font-weight: bold; }
+        .node-lkf { color: #ff4757; }
+        .node-dev { color: var(--accent-magenta); }
+        .node-buddy { color: var(--accent-cyan); }
+        .node-life { color: var(--accent-green); }
+
+        .node-state {
+            font-size: 0.65rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1px 4px;
+            border-radius: 3px;
             color: var(--text-dim);
-            border-left: 2px solid var(--cyan-accent);
-            padding-left: 10px;
         }
 
-        .msg-user {
-            color: #f0883e;
-            border-left: 2px solid #f0883e;
-            padding-left: 10px;
+        .node-state.active {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            box-shadow: 0 0 6px var(--accent-green);
         }
 
-        .msg-agent {
-            border-left: 2px solid var(--green-accent);
-            padding-left: 10px;
+        .node-desc { font-size: 0.7rem; color: var(--text-dim); }
+
+        /* TERMINAL CONSOLE */
+        .terminal-box {
+            background: rgba(7, 16, 30, 0.9);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            height: 260px;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .log-sys {
+            border-left: 2px solid var(--accent-cyan);
+            padding-left: 8px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .log-user {
+            border-left: 2px solid var(--accent-warn);
+            padding-left: 8px;
+            color: var(--accent-warn);
+        }
+
+        .log-res {
+            border-left: 2px solid var(--accent-green);
+            padding-left: 8px;
             white-space: pre-wrap;
         }
 
-        .agent-tag {
+        .log-res .agent-tag {
             font-weight: bold;
-            color: var(--green-accent);
+            font-size: 0.8rem;
             margin-bottom: 4px;
         }
 
-        .input-bar {
-            padding: 12px 16px;
-            background: #161b22;
-            border-top: 1px solid var(--border-color);
+        .input-group {
             display: flex;
             gap: 8px;
+            margin-top: 10px;
         }
 
-        .input-bar input {
+        .input-group input {
             flex: 1;
-            background: #0d1117;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
+            background: #091322;
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
             padding: 10px 12px;
-            font-size: 0.9rem;
-            border-radius: 4px;
+            color: var(--text-main);
+            font-size: 0.85rem;
             font-family: var(--font-mono);
         }
 
-        .input-bar input:focus {
-            outline: 1px solid var(--cyan-accent);
+        .input-group input:focus {
+            outline: 1px solid var(--accent-cyan);
         }
 
-        .input-bar button {
-            background: #238636;
-            border: 1px solid rgba(240, 246, 252, 0.1);
-            color: #ffffff;
-            padding: 10px 20px;
-            font-size: 0.9rem;
+        .input-group button {
+            background: #00d2ff;
+            color: #050b14;
             font-weight: bold;
-            border-radius: 4px;
+            border: none;
+            border-radius: 6px;
+            padding: 0 20px;
             cursor: pointer;
             font-family: var(--font-mono);
+            transition: 0.2s;
         }
 
-        .input-bar button:hover {
-            background: #2ea043;
+        .input-group button:hover {
+            background: #33ddff;
+            box-shadow: 0 0 10px #00d2ff;
         }
     </style>
 </head>
 <body>
 
-<div class="terminal-container">
-    <div class="terminal-header">
-        <div class="title">⚡ MO_COMMAND_CENTER</div>
-        <div class="status-badge" id="netStatus">DIRECT ROUTE // OPENROUTER</div>
-    </div>
-
-    <div class="config-bar">
-        <input type="password" id="apiKeyInput" placeholder="輸入 OpenRouter API Key (sk-or-v1-...)">
-        <button onclick="saveApiKey()">儲存 KEY</button>
-    </div>
-
-    <div class="terminal-body" id="chatArea">
-        <div class="msg-block msg-system">
-            <div>[MO_CORE // DISPATCH ENGINE ONLINE]</div>
-            <div>浩賢你好！中控直連引擎已就緒。原生支援香港寬頻直出，毋須掛載 VPN 或反向代理。</div>
+<div class="container">
+    <!-- FUEL -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">▶ FUEL [Token Balance]</div>
+            <div class="panel-status">ROUTE: OPENROUTER (HK DIRECT)</div>
+        </div>
+        <div class="fuel-grid">
+            <div class="circle-gauge">
+                <div class="circle-inner">
+                    <span class="pct">100%</span>
+                    <span class="lbl">ONLINE</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="title">Tokens Consumed</div>
+                <div class="val" id="tokenCount">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="title">Active Engine</div>
+                <div class="val" style="color:var(--accent-cyan); font-size: 0.8rem;">GPT-4o-mini</div>
+            </div>
         </div>
     </div>
 
-    <div class="input-bar">
-        <input type="text" id="userInput" placeholder="發放任何指令、勤務筆記或問題..." onkeydown="handleKey(event)">
-        <button onclick="sendMessage()">EXEC</button>
+    <!-- 4 SECTORS -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">● NODE ARRAY [4 SECTORS]</div>
+            <div style="font-size: 0.7rem; color: var(--text-dim);">ZERO GEO-BLOCK</div>
+        </div>
+        <div class="nodes-grid">
+            <div class="node-box" id="node-LKFSTN">
+                <div class="node-top">
+                    <span class="node-name node-lkf">LKFSTN.EXE</span>
+                    <span class="node-state" id="st-LKFSTN">IDLE</span>
+                </div>
+                <div class="node-desc">局內勤務 / 出更日誌</div>
+            </div>
+            <div class="node-box" id="node-BUDDY">
+                <div class="node-top">
+                    <span class="node-name node-buddy">BUDDY.EXE</span>
+                    <span class="node-state" id="st-BUDDY">IDLE</span>
+                </div>
+                <div class="node-desc">隨身特助 / 即時軍師</div>
+            </div>
+            <div class="node-box" id="node-DEV">
+                <div class="node-top">
+                    <span class="node-name node-dev">DEV.EXE</span>
+                    <span class="node-state" id="st-DEV">IDLE</span>
+                </div>
+                <div class="node-desc">NAS / 系統代碼架構</div>
+            </div>
+            <div class="node-box" id="node-LIFE">
+                <div class="node-top">
+                    <span class="node-name node-life">LIFE.EXE</span>
+                    <span class="node-state" id="st-LIFE">IDLE</span>
+                </div>
+                <div class="node-desc">寵物 / 水族 / 個人資料</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TERMINAL -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">⚡ MO_COMMAND_CENTER</div>
+            <div class="panel-status">DIRECT DISPATCH ACTIVE</div>
+        </div>
+        <div class="terminal-box" id="chatArea">
+            <div class="log-sys">
+                [MO_CORE // DISPATCH READY]<br>
+                浩賢你好！香港直連引擎已就緒。後端採用 OpenRouter (GPT-4o-mini) 直通，毋須掛載 VPN。
+            </div>
+        </div>
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="發放任何指令、勤務筆記或問題..." onkeydown="if(event.key==='Enter') executeCommand()">
+            <button onclick="executeCommand()">EXEC</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const STORAGE_KEY = "mo_core_openrouter_key";
-    const MODEL_NAME = "openai/gpt-4o-mini";
+    const OPENROUTER_KEY = "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";
+    let consumedTokens = 0;
+
     const DISPATCHER_PROMPT = `
 你係 MO 核心系統嘅「總指揮大腦（MO_CORE / CEO）」，專門為巫浩賢統籌全局。
 你手下管理住 4 個專屬部門（Agent）：
@@ -241,74 +339,49 @@
 - 如果是複雜問題，先回答結論，再以點列方式給出具體建議。
 `;
 
-    // 載入預設或儲存的 API Key
-    window.onload = function() {
-        const savedKey = localStorage.getItem(STORAGE_KEY) || "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";
-        document.getElementById('apiKeyInput').value = savedKey;
-        localStorage.setItem(STORAGE_KEY, savedKey);
-    };
-
-    function saveApiKey() {
-        const key = document.getElementById('apiKeyInput').value.trim();
-        if (key) {
-            localStorage.setItem(STORAGE_KEY, key);
-            appendSystemMsg("API Key 已成功儲存於本地瀏覽器！");
-        }
+    function setSectorActive(sector) {
+        ['LKFSTN', 'BUDDY', 'DEV', 'LIFE'].forEach(s => {
+            const st = document.getElementById('st-' + s);
+            if (st) {
+                st.innerText = (s === sector) ? 'ACTIVE' : 'IDLE';
+                st.className = (s === sector) ? 'node-state active' : 'node-state';
+            }
+        });
     }
 
-    function appendSystemMsg(text) {
-        const chatArea = document.getElementById('chatArea');
-        const block = document.createElement('div');
-        block.className = 'msg-block msg-system';
-        block.innerText = text;
-        chatArea.appendChild(block);
-        chatArea.scrollTop = chatArea.scrollHeight;
-    }
-
-    function handleKey(e) {
-        if (e.key === "Enter") sendMessage();
-    }
-
-    async function sendMessage() {
+    async function executeCommand() {
         const input = document.getElementById('userInput');
         const text = input.value.trim();
-        const apiKey = localStorage.getItem(STORAGE_KEY) || document.getElementById('apiKeyInput').value.trim();
-
         if (!text) return;
-        if (!apiKey) {
-            appendSystemMsg("[ERR] 請先於頂部輸入並儲存 OpenRouter API Key！");
-            return;
-        }
 
         const chatArea = document.getElementById('chatArea');
 
         // 使用者訊息
-        const userBlock = document.createElement('div');
-        userBlock.className = 'msg-block msg-user';
-        userBlock.innerHTML = `<div>&gt; ${text}</div>`;
-        chatArea.appendChild(userBlock);
-
+        const userDiv = document.createElement('div');
+        userDiv.className = 'log-user';
+        userDiv.innerHTML = `&gt; USER_INPUT<br>${text}`;
+        chatArea.appendChild(userDiv);
         input.value = "";
         chatArea.scrollTop = chatArea.scrollHeight;
 
-        // 載入中狀態
-        const loadingBlock = document.createElement('div');
-        loadingBlock.className = 'msg-block msg-system';
-        loadingBlock.innerText = ">>> ROUTING VIA MO_CORE (OpenRouter)...";
-        chatArea.appendChild(loadingBlock);
+        // 載入中
+        const loadDiv = document.createElement('div');
+        loadDiv.className = 'log-sys';
+        loadDiv.innerText = ">>> ROUTING VIA OPENROUTER (GPT-4o-mini)...";
+        chatArea.appendChild(loadDiv);
         chatArea.scrollTop = chatArea.scrollHeight;
 
         try {
             const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${apiKey}`,
+                    "Authorization": `Bearer ${OPENROUTER_KEY}`,
                     "Content-Type": "application/json",
                     "HTTP-Referer": window.location.href,
                     "X-Title": "MO_COMMAND_CENTER"
                 },
                 body: JSON.stringify({
-                    model: MODEL_NAME,
+                    model: "openai/gpt-4o-mini",
                     messages: [
                         { role: "system", content: DISPATCHER_PROMPT },
                         { role: "user", content: text }
@@ -318,7 +391,7 @@
             });
 
             const data = await res.json();
-            chatArea.removeChild(loadingBlock);
+            chatArea.removeChild(loadDiv);
 
             if (data.choices && data.choices[0]) {
                 const rawReply = data.choices[0].message.content;
@@ -331,30 +404,42 @@
                     cleanReply = rawReply.substring(match[0].length).trim();
                 }
 
+                setSectorActive(agent);
+
+                if (data.usage && data.usage.total_tokens) {
+                    consumedTokens += data.usage.total_tokens;
+                    document.getElementById('tokenCount').innerText = consumedTokens;
+                }
+
                 const badgeMap = {
-                    "LKFSTN": "🚒 [LKFSTN.EXE // 勤務日誌]",
-                    "LIFE": "🌱 [LIFE.EXE // 私人檔案]",
+                    "LKFSTN": "🚒 [LKFSTN.EXE // 勤務日誌存檔]",
+                    "LIFE": "🌱 [LIFE.EXE // 私人檔案存檔]",
                     "DEV": "💻 [DEV.EXE // 系統技術架構]",
                     "BUDDY": "⚡ [BUDDY.EXE // 隨身特助]"
                 };
 
-                const header = badgeMap[agent] || `🤖 [${agent}.EXE]`;
-
-                const replyBlock = document.createElement('div');
-                replyBlock.className = 'msg-block msg-agent';
-                replyBlock.innerHTML = `<div class="agent-tag">${header}</div><div>${cleanReply}</div>`;
-                chatArea.appendChild(replyBlock);
+                const resDiv = document.createElement('div');
+                resDiv.className = 'log-res';
+                resDiv.innerHTML = `<div class="agent-tag" style="color:var(--accent-cyan);">${badgeMap[agent] || agent}</div><div>${cleanReply}</div>`;
+                chatArea.appendChild(resDiv);
             } else {
-                appendSystemMsg(`[MO_CORE ERR] 接口異常：${JSON.stringify(data)}`);
+                const errDiv = document.createElement('div');
+                errDiv.className = 'log-sys';
+                errDiv.style.color = 'var(--accent-warn)';
+                errDiv.innerText = `▲ 接口報錯：${JSON.stringify(data)}`;
+                chatArea.appendChild(errDiv);
             }
-        } catch (err) {
-            if (loadingBlock.parentNode) chatArea.removeChild(loadingBlock);
-            appendSystemMsg(`[MO_CORE ERR] 連線例外：${err.message}`);
+        } catch (e) {
+            if (loadDiv.parentNode) chatArea.removeChild(loadDiv);
+            const errDiv = document.createElement('div');
+            errDiv.className = 'log-sys';
+            errDiv.style.color = 'var(--accent-warn)';
+            errDiv.innerText = `▲ 連線失敗：${e.message}`;
+            chatArea.appendChild(errDiv);
         }
 
         chatArea.scrollTop = chatArea.scrollHeight;
     }
 </script>
-
 </body>
 </html>
