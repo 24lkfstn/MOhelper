@@ -22,6 +22,10 @@
       border: 1px solid rgba(0, 243, 255, 0.4);
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.05);
     }
+    .neon-border-pink {
+      border: 1px solid rgba(255, 0, 128, 0.4);
+      box-shadow: 0 0 15px rgba(255, 0, 128, 0.15);
+    }
     .text-glow-cyan { text-shadow: 0 0 8px rgba(0, 243, 255, 0.6); }
     .text-glow-pink { text-shadow: 0 0 8px rgba(255, 0, 128, 0.6); }
     .text-glow-red { text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
@@ -40,8 +44,10 @@
       <span class="text-gray-600">|</span>
       <span class="text-[11px] text-gray-400">4 NODES ACTIVE</span>
     </div>
-    <div class="flex items-center space-x-1 bg-cyan-950/60 border border-cyan-800/80 px-2 py-0.5 rounded text-[10px] text-cyan-300">
-      <span>CONTROL_SYS</span>
+    <div class="flex items-center space-x-1">
+      <button onclick="promptApiKey()" class="bg-cyan-950/80 border border-cyan-700 hover:border-cyan-400 px-2 py-0.5 rounded text-[10px] text-cyan-300 transition">
+        🔑 KEY_CONFIG
+      </button>
     </div>
   </header>
 
@@ -53,13 +59,12 @@
         <span class="text-xs text-cyan-400 flex items-center gap-1">
           <span class="text-pink-500">▶</span> FUEL [Token Balance]
         </span>
-        <span class="text-[10px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60">
-          FREE TIER • UNLIMITED
+        <span class="text-[10px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60" id="key-badge">
+          CHECKING KEY...
         </span>
       </div>
 
       <div class="flex items-center gap-4">
-        <!-- 圓環儀表進度 -->
         <div class="relative w-20 h-20 rounded-full circular-progress flex items-center justify-center flex-shrink-0 border border-pink-500/30">
           <div class="w-16 h-16 bg-[#090d1a] rounded-full flex flex-col items-center justify-center">
             <span class="text-xs font-bold text-pink-400 text-glow-pink">15%</span>
@@ -67,7 +72,6 @@
           </div>
         </div>
 
-        <!-- 數據統計陣列 -->
         <div class="grid grid-cols-2 gap-2 flex-1 text-[11px]">
           <div class="bg-[#05070e] p-2 rounded border border-gray-800">
             <div class="text-[9px] text-gray-500">TOKENS CONSUMED</div>
@@ -89,7 +93,7 @@
       </div>
     </div>
 
-    <!-- 2. NODE STATUS (Agent 陣列面板) -->
+    <!-- 2. NODE STATUS 面板 -->
     <div class="bg-[#090d1a]/85 border border-gray-800/80 rounded-xl p-3.5 space-y-2.5">
       <div class="flex justify-between items-center text-xs">
         <span class="text-gray-400 flex items-center gap-1.5">
@@ -100,7 +104,6 @@
       </div>
 
       <div class="grid grid-cols-2 gap-2 text-xs">
-        <!-- LKFSTN.EXE -->
         <div class="p-2.5 bg-[#05070e] rounded-lg border border-red-900/60 relative">
           <div class="flex justify-between items-start mb-1">
             <span class="font-bold text-red-400 text-glow-red text-[11px]">LKFSTN.EXE</span>
@@ -112,7 +115,6 @@
           </div>
         </div>
 
-        <!-- BUDDY.EXE -->
         <div class="p-2.5 bg-[#05070e] rounded-lg border border-cyan-900/50 relative">
           <div class="flex justify-between items-start mb-1">
             <span class="font-bold text-cyan-300 text-glow-cyan text-[11px]">BUDDY.EXE</span>
@@ -124,7 +126,6 @@
           </div>
         </div>
 
-        <!-- DEV.EXE -->
         <div class="p-2.5 bg-[#05070e] rounded-lg border border-purple-900/50 relative">
           <div class="flex justify-between items-start mb-1">
             <span class="font-bold text-purple-300 text-[11px]">DEV.EXE</span>
@@ -136,7 +137,6 @@
           </div>
         </div>
 
-        <!-- STOCK.EXE -->
         <div class="p-2.5 bg-[#05070e] rounded-lg border border-amber-900/50 relative">
           <div class="flex justify-between items-start mb-1">
             <span class="font-bold text-amber-300 text-[11px]">STOCK.EXE</span>
@@ -150,7 +150,7 @@
       </div>
     </div>
 
-    <!-- 3. CONSOLE TERMINAL 對話終端機 -->
+    <!-- 3. CONSOLE 終端機 -->
     <div class="bg-[#090d1a]/95 neon-border-cyan rounded-xl p-3 flex flex-col h-[340px] relative">
       <div class="flex justify-between items-center pb-2 border-b border-cyan-950 text-xs">
         <span class="text-cyan-400 flex items-center gap-1.5">
@@ -164,15 +164,13 @@
         </select>
       </div>
 
-      <!-- 終端機日誌對話區 -->
       <div id="chat-box" class="flex-1 overflow-y-auto space-y-2.5 py-2.5 text-xs">
         <div class="bg-cyan-950/30 border-l-2 border-cyan-400 p-2 text-cyan-200">
           <span class="text-[9px] text-cyan-400 block font-bold">[SYSTEM READY]</span>
-          浩賢，NEXUS 控制台已就緒。請選擇 Agent 開始對話。
+          浩賢，NEXUS 控制台已就緒。首次使用請點擊右上角「KEY_CONFIG」綁定金鑰。
         </div>
       </div>
 
-      <!-- 輸入欄 -->
       <div class="pt-2 border-t border-cyan-950 flex gap-1.5">
         <input type="text" id="user-input" placeholder="輸入指令或勤務日誌..." class="flex-1 bg-[#05070e] border border-cyan-900/80 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400" />
         <button onclick="sendMessage()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs transition uppercase tracking-wider">EXEC</button>
@@ -182,9 +180,34 @@
   </main>
 
   <script>
-    const GEMINI_API_KEY = "AQ.Ab8RN6JuL8IkTw8b-VTCbAqFQpNUsd8HObHSJkPp4dJXOFkX1w";
     let totalTokens = 0;
     let requestCount = 0;
+
+    // 從手機 LocalStorage 讀取 Key，完全不在代碼內公開
+    function getStoredKey() {
+      return localStorage.getItem("nexus_gemini_key") || "";
+    }
+
+    function updateBadge() {
+      const badge = document.getElementById("key-badge");
+      if (getStoredKey()) {
+        badge.innerText = "KEY: LINKED (SECURE)";
+        badge.className = "text-[10px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-700/60";
+      } else {
+        badge.innerText = "NO KEY (CLICK CONFIG)";
+        badge.className = "text-[10px] text-rose-400 bg-rose-950/60 px-2 py-0.5 rounded border border-rose-700/60";
+      }
+    }
+
+    function promptApiKey() {
+      const current = getStoredKey();
+      const input = prompt("請貼入你的 Gemini API Key (只會儲存在本機電話中)：", current);
+      if (input !== null) {
+        localStorage.setItem("nexus_gemini_key", input.trim());
+        updateBadge();
+        appendMessage("system", "🔐 API Key 已成功儲存於本地！");
+      }
+    }
 
     const PROMPTS = {
       LKFSTN: `你係巫浩賢的專屬局內勤務與工作記錄特助「LKFSTN.EXE」。
@@ -202,6 +225,12 @@
     };
 
     async function sendMessage() {
+      const apiKey = getStoredKey();
+      if (!apiKey) {
+        promptApiKey();
+        return;
+      }
+
       const input = document.getElementById("user-input");
       const text = input.value.trim();
       if (!text) return;
@@ -218,7 +247,7 @@
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            "x-goog-api-key": GEMINI_API_KEY
+            "x-goog-api-key": apiKey
           },
           body: JSON.stringify({
             contents: [{ parts: [{ text: text }] }],
@@ -238,7 +267,7 @@
           document.getElementById("token-usage").innerText = totalTokens;
           document.getElementById("req-count").innerText = requestCount + " 次";
         } else {
-          const errMsg = data.error ? data.error.message : "無法獲取數據";
+          const errMsg = data.error ? data.error.message : JSON.stringify(data);
           appendMessage("system", "⚠️ ERR: " + errMsg);
         }
       } catch (err) {
@@ -275,6 +304,9 @@
       const el = document.getElementById(id);
       if (el) el.remove();
     }
+
+    // 初始化狀態燈
+    updateBadge();
   </script>
 </body>
 </html>
