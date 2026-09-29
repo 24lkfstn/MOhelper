@@ -82,7 +82,7 @@
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            background: conic-gradient(var(--accent-magenta) 0% 100%, #152238 100% 100%);
+            background: conic-gradient(var(--accent-green) 0% 100%, #152238 100% 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -231,25 +231,25 @@
 <body>
 
 <div class="container">
-    <!-- FUEL -->
+    <!-- STATUS / BACKEND -->
     <div class="panel">
         <div class="panel-header">
-            <div class="panel-title">▶ FUEL [Token Balance]</div>
-            <div class="panel-status">ROUTE: DEEPSEEK (HK DIRECT)</div>
+            <div class="panel-title">▶ MO_CORE [NAS DISK LINK]</div>
+            <div class="panel-status">CLOUDFLARE SECURE TUNNEL</div>
         </div>
         <div class="fuel-grid">
             <div class="circle-gauge">
                 <div class="circle-inner">
-                    <span class="pct">100%</span>
-                    <span class="lbl">ONLINE</span>
+                    <span class="pct">SYNC</span>
+                    <span class="lbl">NAS</span>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="title">Tokens Consumed</div>
-                <div class="val" id="tokenCount">0</div>
+                <div class="title">Storage Target</div>
+                <div class="val">NAS /volume1</div>
             </div>
             <div class="metric-card">
-                <div class="title">Active Engine</div>
+                <div class="title">Core Engine</div>
                 <div class="val" style="color:var(--accent-cyan); font-size: 0.8rem;">DeepSeek-V3</div>
             </div>
         </div>
@@ -259,7 +259,7 @@
     <div class="panel">
         <div class="panel-header">
             <div class="panel-title">● NODE ARRAY [4 SECTORS]</div>
-            <div style="font-size: 0.7rem; color: var(--text-dim);">ZERO GEO-BLOCK</div>
+            <div style="font-size: 0.7rem; color: var(--text-dim);">AUTO-ARCHIVING ACTIVE</div>
         </div>
         <div class="nodes-grid">
             <div class="node-box" id="node-LKFSTN">
@@ -267,28 +267,28 @@
                     <span class="node-name node-lkf">LKFSTN.EXE</span>
                     <span class="node-state" id="st-LKFSTN">IDLE</span>
                 </div>
-                <div class="node-desc">局內勤務 / 出更日誌</div>
+                <div class="node-desc">局內勤務 / 出更日誌 💾</div>
             </div>
             <div class="node-box" id="node-BUDDY">
                 <div class="node-top">
                     <span class="node-name node-buddy">BUDDY.EXE</span>
                     <span class="node-state" id="st-BUDDY">IDLE</span>
                 </div>
-                <div class="node-desc">隨身特助 / 即時軍師</div>
+                <div class="node-desc">隨身特助 / 即時軍師 ⚡</div>
             </div>
             <div class="node-box" id="node-DEV">
                 <div class="node-top">
                     <span class="node-name node-dev">DEV.EXE</span>
                     <span class="node-state" id="st-DEV">IDLE</span>
                 </div>
-                <div class="node-desc">NAS / 系統代碼架構</div>
+                <div class="node-desc">NAS / 系統代碼架構 💻</div>
             </div>
             <div class="node-box" id="node-LIFE">
                 <div class="node-top">
                     <span class="node-name node-life">LIFE.EXE</span>
                     <span class="node-state" id="st-LIFE">IDLE</span>
                 </div>
-                <div class="node-desc">寵物 / 水族 / 個人資料</div>
+                <div class="node-desc">寵物 / 水族 / 個人資料 💾</div>
             </div>
         </div>
     </div>
@@ -297,12 +297,13 @@
     <div class="panel">
         <div class="panel-header">
             <div class="panel-title">⚡ MO_COMMAND_CENTER</div>
-            <div class="panel-status">DEEPSEEK NATIVE ONLINE</div>
+            <div class="panel-status">NAS LIVE TUNNEL</div>
         </div>
         <div class="terminal-box" id="chatArea">
             <div class="log-sys">
-                [MO_CORE // DEEPSEEK READY]<br>
-                浩賢你好！DeepSeek 官方引擎已成功接通。香港原生線路直出，零封鎖、免翻牆。
+                [MO_CORE // SECURE LINK ESTABLISHED]<br>
+                浩賢你好！網頁版已透過 Cloudflare 安全隧道成功接通屋企 NAS。<br>
+                從此網頁上的所有日誌與指令，都會直接寫入你 NAS 的硬碟（logs_station / logs_life）！
             </div>
         </div>
         <div class="input-group">
@@ -313,31 +314,8 @@
 </div>
 
 <script>
-    const DEEPSEEK_KEY = "sk-20e212fb9be54dadb9f1bb3f9dee54e0";
-    let consumedTokens = 0;
-
-    const DISPATCHER_PROMPT = `
-你係 MO 核心系統嘅「總指揮大腦（MO_CORE / CEO）」，專門為巫浩賢統籌全局。
-你手下管理住 4 個專屬部門（Agent）：
-1. [LKFSTN] 局內勤務、車輛裝備檢查、操練、事故出更日誌與輪更待辦。當使用者提到返工、更表、消防車輛或操練，必須整理成極標準的勤務日誌格式（日期時間、車次項目、執勤內容、跟進事項）。
-2. [DEV] NAS 部署、Docker、Linux 指令、代碼與架構排除。
-3. [LIFE] 個人生活資料庫、長期存檔（例如寵物健康與用藥、水草魚缸水質參數、車輛維護週期、私人資料歸檔）。
-4. [BUDDY] 日常生活特助、行程規劃、閒聊、隨身軍師。
-
-【輸出規則】
-回覆的第一行，必須嚴格按照格式標註調用的 Agent 代號，例如：
-<<<LKFSTN>>>
-或
-<<<DEV>>>
-或
-<<<LIFE>>>
-或
-<<<BUDDY>>>
-
-由第二行開始輸出正文內容：
-- 一律使用道地香港人口吻（廣東話口語）回答，直接給出重點，俐落乾脆，不講廢話。
-- 如果是複雜問題，先回答結論，再以點列方式給出具體建議。
-`;
+    // 你的專屬 NAS Cloudflare 穿透接口
+    const BACKEND_URL = "https://grande-scanners-preferences-moscow.trycloudflare.com/api/chat";
 
     function setSectorActive(sector) {
         ['LKFSTN', 'BUDDY', 'DEV', 'LIFE'].forEach(s => {
@@ -356,7 +334,7 @@
 
         const chatArea = document.getElementById('chatArea');
 
-        // 使用者訊息
+        // 使用者訊息顯示
         const userDiv = document.createElement('div');
         userDiv.className = 'log-user';
         userDiv.innerHTML = `&gt; USER_INPUT<br>${text}`;
@@ -364,54 +342,34 @@
         input.value = "";
         chatArea.scrollTop = chatArea.scrollHeight;
 
-        // 載入中
+        // 載入提示
         const loadDiv = document.createElement('div');
         loadDiv.className = 'log-sys';
-        loadDiv.innerText = ">>> ROUTING VIA DEEPSEEK OFFICIAL (api.deepseek.com)...";
+        loadDiv.innerText = ">>> TRANSMITTING TO NAS HARD DRIVE VIA TUNNEL...";
         chatArea.appendChild(loadDiv);
         chatArea.scrollTop = chatArea.scrollHeight;
 
         try {
-            const res = await fetch("https://api.deepseek.com/chat/completions", {
+            const res = await fetch(BACKEND_URL, {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${DEEPSEEK_KEY}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    model: "deepseek-chat",
-                    messages: [
-                        { role: "system", content: DISPATCHER_PROMPT },
-                        { role: "user", content: text }
-                    ],
-                    temperature: 0.5
-                })
+                body: JSON.stringify({ text: text })
             });
 
             const data = await res.json();
             chatArea.removeChild(loadDiv);
 
-            if (data.choices && data.choices[0]) {
-                const rawReply = data.choices[0].message.content;
-                let agent = "BUDDY";
-                let cleanReply = rawReply;
-
-                const match = rawReply.match(/^<<<([A-Z]+)>>>\s*/);
-                if (match) {
-                    agent = match[1];
-                    cleanReply = rawReply.substring(match[0].length).trim();
-                }
+            if (data.reply) {
+                const agent = data.agent || "BUDDY";
+                const cleanReply = data.reply;
 
                 setSectorActive(agent);
 
-                if (data.usage && data.usage.total_tokens) {
-                    consumedTokens += data.usage.total_tokens;
-                    document.getElementById('tokenCount').innerText = consumedTokens;
-                }
-
                 const badgeMap = {
-                    "LKFSTN": "🚒 [LKFSTN.EXE // 勤務日誌存檔]",
-                    "LIFE": "🌱 [LIFE.EXE // 私人檔案存檔]",
+                    "LKFSTN": "🚒 [LKFSTN.EXE // 勤務日誌已存入 NAS]",
+                    "LIFE": "🌱 [LIFE.EXE // 私人檔案已存入 NAS]",
                     "DEV": "💻 [DEV.EXE // 系統技術架構]",
                     "BUDDY": "⚡ [BUDDY.EXE // 隨身特助]"
                 };
@@ -424,7 +382,7 @@
                 const errDiv = document.createElement('div');
                 errDiv.className = 'log-sys';
                 errDiv.style.color = 'var(--accent-warn)';
-                errDiv.innerText = `▲ 接口報錯：${JSON.stringify(data)}`;
+                errDiv.innerText = `▲ 接口回傳異常：${JSON.stringify(data)}`;
                 chatArea.appendChild(errDiv);
             }
         } catch (e) {
@@ -432,7 +390,7 @@
             const errDiv = document.createElement('div');
             errDiv.className = 'log-sys';
             errDiv.style.color = 'var(--accent-warn)';
-            errDiv.innerText = `▲ 連線失敗：${e.message}`;
+            errDiv.innerText = `▲ 連線失敗：${e.message}（請確認 NAS 容器運作中）`;
             chatArea.appendChild(errDiv);
         }
 
