@@ -235,7 +235,7 @@
     <div class="panel">
         <div class="panel-header">
             <div class="panel-title">▶ FUEL [Token Balance]</div>
-            <div class="panel-status">ROUTE: OPENROUTER (HK DIRECT)</div>
+            <div class="panel-status">ROUTE: DEEPSEEK (HK DIRECT)</div>
         </div>
         <div class="fuel-grid">
             <div class="circle-gauge">
@@ -250,7 +250,7 @@
             </div>
             <div class="metric-card">
                 <div class="title">Active Engine</div>
-                <div class="val" style="color:var(--accent-cyan); font-size: 0.8rem;">GPT-4o-mini</div>
+                <div class="val" style="color:var(--accent-cyan); font-size: 0.8rem;">DeepSeek-V3</div>
             </div>
         </div>
     </div>
@@ -297,12 +297,12 @@
     <div class="panel">
         <div class="panel-header">
             <div class="panel-title">⚡ MO_COMMAND_CENTER</div>
-            <div class="panel-status">DIRECT DISPATCH ACTIVE</div>
+            <div class="panel-status">DEEPSEEK NATIVE ONLINE</div>
         </div>
         <div class="terminal-box" id="chatArea">
             <div class="log-sys">
-                [MO_CORE // DISPATCH READY]<br>
-                浩賢你好！香港直連引擎已就緒。後端採用 OpenRouter (GPT-4o-mini) 直通，毋須掛載 VPN。
+                [MO_CORE // DEEPSEEK READY]<br>
+                浩賢你好！DeepSeek 官方引擎已成功接通。香港原生線路直出，零封鎖、免翻牆。
             </div>
         </div>
         <div class="input-group">
@@ -313,7 +313,7 @@
 </div>
 
 <script>
-    const OPENROUTER_KEY = "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";
+    const DEEPSEEK_KEY = "sk-20e212fb9be54dadb9f1bb3f9dee54e0";
     let consumedTokens = 0;
 
     const DISPATCHER_PROMPT = `
@@ -367,21 +367,19 @@
         // 載入中
         const loadDiv = document.createElement('div');
         loadDiv.className = 'log-sys';
-        loadDiv.innerText = ">>> ROUTING VIA OPENROUTER (GPT-4o-mini)...";
+        loadDiv.innerText = ">>> ROUTING VIA DEEPSEEK OFFICIAL (api.deepseek.com)...";
         chatArea.appendChild(loadDiv);
         chatArea.scrollTop = chatArea.scrollHeight;
 
         try {
-            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            const res = await fetch("https://api.deepseek.com/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${OPENROUTER_KEY}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": window.location.href,
-                    "X-Title": "MO_COMMAND_CENTER"
+                    "Authorization": `Bearer ${DEEPSEEK_KEY}`,
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "openai/gpt-4o-mini",
+                    model: "deepseek-chat",
                     messages: [
                         { role: "system", content: DISPATCHER_PROMPT },
                         { role: "user", content: text }
