@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NEXUS // AGENT OPS</title>
+  <title>MO // AGENT OPS</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,15 +22,15 @@
       border: 1px solid rgba(0, 243, 255, 0.4);
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.05);
     }
-    .neon-border-pink {
-      border: 1px solid rgba(255, 0, 128, 0.4);
-      box-shadow: 0 0 15px rgba(255, 0, 128, 0.15);
-    }
     .text-glow-cyan { text-shadow: 0 0 8px rgba(0, 243, 255, 0.6); }
     .text-glow-pink { text-shadow: 0 0 8px rgba(255, 0, 128, 0.6); }
     .text-glow-red { text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
     .circular-progress {
       background: conic-gradient(#ff007f 0deg 54deg, #0f172a 54deg 360deg);
+    }
+    .agent-active-glow {
+      box-shadow: 0 0 18px rgba(0, 243, 255, 0.4);
+      border-color: rgba(0, 243, 255, 0.9) !important;
     }
   </style>
 </head>
@@ -40,9 +40,9 @@
   <header class="p-3 border-b border-cyan-900/60 bg-[#080b14]/90 backdrop-blur sticky top-0 z-50 flex justify-between items-center text-xs">
     <div class="flex items-center space-x-2">
       <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
-      <span class="text-cyan-400 font-bold tracking-widest text-glow-cyan">NEXUS_//:OPS</span>
+      <span class="text-cyan-400 font-bold tracking-widest text-glow-cyan">MO_//:OPS</span>
       <span class="text-gray-600">|</span>
-      <span class="text-[11px] text-gray-400">4 NODES ACTIVE</span>
+      <span class="text-[11px] text-gray-400">CEO DISPATCHER</span>
     </div>
     <div class="flex items-center space-x-1">
       <button onclick="promptApiKey()" class="bg-cyan-950/80 border border-cyan-700 hover:border-cyan-400 px-2 py-0.5 rounded text-[10px] text-cyan-300 transition">
@@ -86,93 +86,94 @@
             <div class="text-cyan-300 font-bold text-sm" id="req-count">0 次</div>
           </div>
           <div class="bg-[#05070e] p-2 rounded border border-gray-800">
-            <div class="text-[9px] text-gray-500">STATUS</div>
-            <div class="text-cyan-400 font-bold text-sm">OPTIMAL</div>
+            <div class="text-[9px] text-gray-500">CURRENT ROUTE</div>
+            <div class="text-cyan-400 font-bold text-sm" id="current-agent">MO_CORE</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 2. NODE STATUS 面板 -->
+    <!-- 2. NODE STATUS 面板 (動態高亮節點) -->
     <div class="bg-[#090d1a]/85 border border-gray-800/80 rounded-xl p-3.5 space-y-2.5">
       <div class="flex justify-between items-center text-xs">
         <span class="text-gray-400 flex items-center gap-1.5">
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-          NODE STATUS [4/4 ONLINE]
+          NODE ARRAY [4 SECTORS]
         </span>
-        <span class="text-[10px] text-gray-500">PORT: 8080</span>
+        <span class="text-[10px] text-cyan-400">CEO: MO_CORE</span>
       </div>
 
       <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="p-2.5 bg-[#05070e] rounded-lg border border-red-900/60 relative">
+        <!-- LKFSTN.EXE -->
+        <div id="card-LKFSTN" class="p-2.5 bg-[#05070e] rounded-lg border border-red-900/60 relative transition-all duration-300">
           <div class="flex justify-between items-start mb-1">
             <span class="font-bold text-red-400 text-glow-red text-[11px]">LKFSTN.EXE</span>
-            <span class="text-[8px] bg-red-950 text-red-400 border border-red-800 px-1 rounded">DUTY</span>
+            <span class="text-[8px] bg-red-950 text-red-400 border border-red-800 px-1 rounded" id="tag-LKFSTN">IDLE</span>
           </div>
-          <div class="text-[9px] text-gray-500 mb-1.5">PID: 1190 // Station_Ops</div>
+          <div class="text-[9px] text-gray-500 mb-1.5">局內勤務 / 出更日誌</div>
           <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden">
-            <div class="bg-red-500 h-full w-[85%]"></div>
+            <div class="bg-red-500 h-full w-[0%]" id="bar-LKFSTN"></div>
           </div>
         </div>
 
-        <div class="p-2.5 bg-[#05070e] rounded-lg border border-cyan-900/50 relative">
+        <!-- BUDDY.EXE -->
+        <div id="card-BUDDY" class="p-2.5 bg-[#05070e] rounded-lg border border-cyan-900/50 relative transition-all duration-300">
           <div class="flex justify-between items-start mb-1">
             <span class="font-bold text-cyan-300 text-glow-cyan text-[11px]">BUDDY.EXE</span>
-            <span class="text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 rounded">ACTIVE</span>
+            <span class="text-[8px] bg-cyan-950 text-cyan-400 border border-cyan-800 px-1 rounded" id="tag-BUDDY">IDLE</span>
           </div>
-          <div class="text-[9px] text-gray-500 mb-1.5">PID: 4091 // Tg_Buddy</div>
+          <div class="text-[9px] text-gray-500 mb-1.5">隨身特助 / 即時軍師</div>
           <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden">
-            <div class="bg-cyan-400 h-full w-[35%]"></div>
+            <div class="bg-cyan-400 h-full w-[0%]" id="bar-BUDDY"></div>
           </div>
         </div>
 
-        <div class="p-2.5 bg-[#05070e] rounded-lg border border-purple-900/50 relative">
+        <!-- DEV.EXE -->
+        <div id="card-DEV" class="p-2.5 bg-[#05070e] rounded-lg border border-purple-900/50 relative transition-all duration-300">
           <div class="flex justify-between items-start mb-1">
             <span class="font-bold text-purple-300 text-[11px]">DEV.EXE</span>
-            <span class="text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 rounded">ACTIVE</span>
+            <span class="text-[8px] bg-purple-950 text-purple-400 border border-purple-800 px-1 rounded" id="tag-DEV">IDLE</span>
           </div>
-          <div class="text-[9px] text-gray-500 mb-1.5">PID: 1042 // Fullstack</div>
+          <div class="text-[9px] text-gray-500 mb-1.5">NAS / 系統代碼架構</div>
           <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden">
-            <div class="bg-purple-400 h-full w-[60%]"></div>
+            <div class="bg-purple-400 h-full w-[0%]" id="bar-DEV"></div>
           </div>
         </div>
 
-        <div class="p-2.5 bg-[#05070e] rounded-lg border border-amber-900/50 relative">
+        <!-- LIFE.EXE (已替換原 STOCK) -->
+        <div id="card-LIFE" class="p-2.5 bg-[#05070e] rounded-lg border border-emerald-900/50 relative transition-all duration-300">
           <div class="flex justify-between items-start mb-1">
-            <span class="font-bold text-amber-300 text-[11px]">STOCK.EXE</span>
-            <span class="text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 rounded">ACTIVE</span>
+            <span class="font-bold text-emerald-300 text-[11px]">LIFE.EXE</span>
+            <span class="text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 rounded" id="tag-LIFE">IDLE</span>
           </div>
-          <div class="text-[9px] text-gray-500 mb-1.5">PID: 8821 // Market_v2</div>
+          <div class="text-[9px] text-gray-500 mb-1.5">寵物 / 水族 / 個人資料</div>
           <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden">
-            <div class="bg-amber-400 h-full w-[20%]"></div>
+            <div class="bg-emerald-400 h-full w-[0%]" id="bar-LIFE"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 3. CONSOLE 終端機 -->
+    <!-- 3. CONSOLE 統一中控終端機 -->
     <div class="bg-[#090d1a]/95 neon-border-cyan rounded-xl p-3 flex flex-col h-[340px] relative">
       <div class="flex justify-between items-center pb-2 border-b border-cyan-950 text-xs">
         <span class="text-cyan-400 flex items-center gap-1.5">
-          <span class="text-pink-500">⚡</span> AGENT CONSOLE
+          <span class="text-pink-500">⚡</span> MO_COMMAND_CENTER
         </span>
-        <select id="agent-selector" class="bg-[#05070e] border border-cyan-800/80 text-[11px] rounded px-2 py-0.5 text-cyan-300 focus:outline-none">
-          <option value="LKFSTN">LKFSTN.EXE (返工勤務)</option>
-          <option value="BUDDY">BUDDY.EXE (隨身特助)</option>
-          <option value="DEV">DEV.EXE (全端編程)</option>
-          <option value="STOCK">STOCK.EXE (美股分析)</option>
-        </select>
+        <span class="text-[10px] text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/50">
+          CEO ROUTING
+        </span>
       </div>
 
       <div id="chat-box" class="flex-1 overflow-y-auto space-y-2.5 py-2.5 text-xs">
         <div class="bg-cyan-950/30 border-l-2 border-cyan-400 p-2 text-cyan-200">
-          <span class="text-[9px] text-cyan-400 block font-bold">[SYSTEM READY]</span>
-          浩賢，NEXUS 控制台已就緒。點擊下方輸入指令即可對話。
+          <span class="text-[9px] text-cyan-400 block font-bold">[MO_CORE // CEO READY]</span>
+          浩賢你好！MO 系統總指揮大腦已就位。你無需手動挑選部門，直接輸入任何執勤紀錄、生活雜務、NAS 問題或隨身吩咐，CEO 會自動指派專屬 Agent 為你處理。
         </div>
       </div>
 
       <div class="pt-2 border-t border-cyan-950 flex gap-1.5">
-        <input type="text" id="user-input" placeholder="輸入指令或勤務日誌..." class="flex-1 bg-[#05070e] border border-cyan-900/80 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400" />
+        <input type="text" id="user-input" placeholder="發放任何指令、勤務筆記或問題..." class="flex-1 bg-[#05070e] border border-cyan-900/80 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400" />
         <button onclick="sendMessage()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs transition uppercase tracking-wider">EXEC</button>
       </div>
     </div>
@@ -208,20 +209,29 @@
       }
     }
 
-    const PROMPTS = {
-      LKFSTN: `你係巫浩賢的專屬局內勤務與工作記錄特助「LKFSTN.EXE」。
-你的職責：
-1. 專門記錄日常工作、訓練、裝備檢查、事故出更日誌與輪更待辦。
-2. 當收到零碎、口語化的輸入時，請自動整理成極度標準、幹練的勤務日誌格式：
-   - 📅 日期/時間：
-   - 🚒 項目/車次/地點：
-   - 📝 詳細內容/執勤要點：
-   - 📌 待辦/跟進事項：
-3. 語氣保持極度專業、俐落，使用道地香港字眼，不說多餘廢話。`,
-      BUDDY: "你係巫生（浩賢）的專屬隨身特助。請用道地香港廣東話口語回覆，直奔主題，語氣爽快直接，唔好兜圈。",
-      DEV: "你係資深全端工程師。專門解決程式碼、架構同 NAS 部署問題，回覆請保持精簡、精確。",
-      STOCK: "你係客觀的投資分析員。專注於美股指數、ETF、財經指標與宏觀趨勢。"
-    };
+    // MO_CORE CEO 調度器 Prompt
+    const DISPATCHER_SYSTEM_PROMPT = `
+你係 MO 核心系統嘅「總指揮大腦（MO_CORE / CEO）」，專門為巫浩賢統籌全局。
+你手下管理住 4 個專屬部門（Agent）：
+1. [LKFSTN] 專門負責局內日常勤務、車輛裝備檢查、操練、事故出更日誌與輪更待辦。當使用者提到返工、更表、消防車輛或操練，必須整理成極標準的勤務日誌格式（日期時間、車次項目、執勤內容、跟進事項）。
+2. [DEV] 專門負責 NAS 部署、Docker、Linux 指令、程式代碼、架構問題排除與系統自修改。
+3. [LIFE] 專門負責個人生活資料庫、長期存檔（例如寵物健康與用藥、水草魚缸水質參數、車輛維護週期、私人資料歸檔）。
+4. [BUDDY] 日常生活特助、行程規劃、閒聊、隨身軍師。
+
+【輸出規則】
+你回覆的第一行，必須嚴格按照格式標註你調用的 Agent 代號，例如：
+<<<LKFSTN>>>
+或
+<<<DEV>>>
+或
+<<<LIFE>>>
+或
+<<<BUDDY>>>
+
+由第二行開始輸出正文內容：
+- 一律使用道地香港人口吻（廣東話口語）回答，直接給出重點，俐落乾脆，不講廢話。
+- 如果是複雜問題，先回答結論，再以點列方式給出具體建議。
+`;
 
     async function sendMessage() {
       const apiKey = getStoredKey();
@@ -234,14 +244,13 @@
       const text = input.value.trim();
       if (!text) return;
 
-      const agentType = document.getElementById("agent-selector").value;
       appendMessage("user", text);
       input.value = "";
 
-      const loadingId = appendMessage("system", ">>> PROCESSING_STREAM...");
+      const loadingId = appendMessage("system", ">>> ROUTING VIA MO_CORE (CEO)...");
 
       try {
-        const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
+        const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
         const response = await fetch(url, {
           method: "POST",
           headers: { 
@@ -250,7 +259,7 @@
           },
           body: JSON.stringify({
             contents: [{ parts: [{ text: text }] }],
-            systemInstruction: { parts: [{ text: PROMPTS[agentType] }] }
+            systemInstruction: { parts: [{ text: DISPATCHER_SYSTEM_PROMPT }] }
           })
         });
 
@@ -258,13 +267,26 @@
         removeMessage(loadingId);
 
         if (data.candidates && data.candidates[0].content) {
-          const reply = data.candidates[0].content.parts[0].text;
-          appendMessage("bot", reply, agentType);
+          const rawReply = data.candidates[0].content.parts[0].text;
+          
+          let assignedAgent = "BUDDY";
+          let cleanReply = rawReply;
 
-          totalTokens += text.length + reply.length;
+          const match = rawReply.match(/^<<<([A-Z]+)>>>\s*/);
+          if (match) {
+            assignedAgent = match[1];
+            cleanReply = rawReply.replace(match[0], "");
+          }
+
+          highlightAgent(assignedAgent);
+
+          appendMessage("bot", cleanReply, assignedAgent);
+
+          totalTokens += text.length + cleanReply.length;
           requestCount++;
           document.getElementById("token-usage").innerText = totalTokens;
           document.getElementById("req-count").innerText = requestCount + " 次";
+          document.getElementById("current-agent").innerText = assignedAgent + ".EXE";
         } else {
           const errMsg = data.error ? data.error.message : JSON.stringify(data);
           appendMessage("system", "⚠️ ERR: " + errMsg);
@@ -273,6 +295,27 @@
         removeMessage(loadingId);
         appendMessage("system", "❌ CONNECTION_LOST: " + err.message);
       }
+    }
+
+    function highlightAgent(agent) {
+      const agents = ["LKFSTN", "BUDDY", "DEV", "LIFE"];
+      agents.forEach(a => {
+        const card = document.getElementById("card-" + a);
+        const tag = document.getElementById("tag-" + a);
+        const bar = document.getElementById("bar-" + a);
+        if (!card) return;
+        if (a === agent) {
+          card.classList.add("agent-active-glow");
+          tag.innerText = "ACTIVE";
+          tag.className = "text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 rounded animate-pulse";
+          bar.style.width = "100%";
+        } else {
+          card.classList.remove("agent-active-glow");
+          tag.innerText = "IDLE";
+          tag.className = "text-[8px] bg-gray-900 text-gray-500 border border-gray-800 px-1 rounded";
+          bar.style.width = "20%";
+        }
+      });
     }
 
     function appendMessage(role, text, agent = "SYS") {
@@ -285,10 +328,14 @@
         div.className = "bg-[#101426] border border-gray-700 text-gray-200 p-2 rounded-lg ml-auto max-w-[85%]";
         div.innerHTML = `<span class="text-[9px] text-pink-400 block font-bold">> USER_INPUT</span>${text}`;
       } else if (role === "bot") {
-        const borderCol = agent === "LKFSTN" ? "border-red-500" : "border-cyan-400";
-        const tagCol = agent === "LKFSTN" ? "text-red-400" : "text-cyan-400";
+        let borderCol = "border-cyan-400";
+        let tagCol = "text-cyan-400";
+        if (agent === "LKFSTN") { borderCol = "border-red-500"; tagCol = "text-red-400"; }
+        if (agent === "DEV") { borderCol = "border-purple-400"; tagCol = "text-purple-300"; }
+        if (agent === "LIFE") { borderCol = "border-emerald-400"; tagCol = "text-emerald-300"; }
+
         div.className = `bg-[#06121f] border-l-2 ${borderCol} p-2 text-cyan-100 max-w-[95%]`;
-        div.innerHTML = `<span class="text-[9px] ${tagCol} block font-bold">[${agent}.EXE // RESPONSE]</span>${text.replace(/\n/g, '<br>')}`;
+        div.innerHTML = `<span class="text-[9px] ${tagCol} block font-bold">[${agent}.EXE // DISPATCHED]</span>${text.replace(/\n/g, '<br>')}`;
       } else {
         div.className = "text-gray-500 text-[10px] text-center font-mono";
         div.innerText = text;
