@@ -302,8 +302,8 @@
         <div class="terminal-box" id="chatArea">
             <div class="log-sys">
                 [MO_CORE // SECURE LINK ESTABLISHED]<br>
-                浩賢你好！網頁版已透過 Cloudflare 安全隧道成功接通屋企 NAS。<br>
-                從此網頁上的所有日誌與指令，都會直接寫入你 NAS 的硬碟（logs_station / logs_life）！
+                浩賢你好！網頁版已透過 Cloudflare 安全隧道接通屋企 NAS。<br>
+                網頁上的所有日誌與指令，都會直接寫入你 NAS 的硬碟（logs_station / logs_life）！
             </div>
         </div>
         <div class="input-group">
@@ -314,7 +314,7 @@
 </div>
 
 <script>
-    // 你的專屬 NAS Cloudflare 穿透接口
+    // 你的專屬 NAS Cloudflare 穿透接口 (依據 mo_tunnel 日誌生成之網址)
     const BACKEND_URL = "https://grande-scanners-preferences-moscow.trycloudflare.com/api/chat";
 
     function setSectorActive(sector) {
@@ -353,7 +353,8 @@
             const res = await fetch(BACKEND_URL, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "bypass-tunnel-reminder": "true"
                 },
                 body: JSON.stringify({ text: text })
             });
