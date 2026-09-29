@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NEXUS // AGENT OPS</title>
+  <!-- PWA 全螢幕設定 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0d0f18; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .glow-border { box-shadow: 0 0 10px rgba(0, 255, 204, 0.2); }
+    .scanline { background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; }
+  </style>
+</head>
+<body class="text-gray-200 select-none pb-6">
+
+  <!-- 頂部狀態列 -->
+  <header class="p-4 border-b border-cyan-900/50 bg-[#131722]/80 backdrop-blur sticky top-0 z-50">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-mono text-xs tracking-widest text-cyan-400 font-bold">NEXUS // OPS PORTAL</span>
+      </div>
+      <div class="font-mono text-[10px] text-gray-400">NODE: ONLINE</div>
+    </div>
+  </header>
+
+  <div class="p-4 space-y-4 max-w-lg mx-auto">
+
+    <!-- 1. FUEL TOKEN 油缸狀態 -->
+    <div class="bg-[#151926] border border-cyan-800/40 rounded-xl p-4 glow-border">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-mono text-cyan-400">FUEL [TOKEN BALANCE]</span>
+        <span class="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">FREE TIER (ACTIVE)</span>
+      </div>
+      <div class="flex items-baseline space-x-2">
+        <span class="text-2xl font-bold font-mono text-white" id="token-usage">0</span>
+        <span class="text-xs text-gray-400">Tokens 用量 (估算 HK$0.00)</span>
+      </div>
+      <!-- 進度條 -->
+      <div class="w-full bg-gray-800 h-2 rounded-full mt-3 overflow-hidden">
+        <div class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-[12%]" id="fuel-bar"></div>
+      </div>
+    </div>
+
+    <!-- 2. NODE STATUS (Agent 陣列狀態) -->
+    <div class="bg-[#151926] border border-cyan-800/40 rounded-xl p-4">
+      <div class="text-xs font-mono text-gray-400 mb-3">NODE STATUS [4 AGENTS ONLINE]</div>
+      <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+        <div class="p-2.5 bg-[#0f121d] rounded border border-cyan-900/40 flex justify-between items-center">
+          <div>
+            <div class="text-cyan-300 font-bold">BUDDY.EXE</div>
+            <div class="text-[10px] text-gray-500">隨身特助</div>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        </div>
+        <div class="p-2.5 bg-[#0f121d] rounded border border-cyan-900/40 flex justify-between items-center">
+          <div>
+            <div class="text-purple-300 font-bold">DEV.EXE</div>
+            <div class="text-[10px] text-gray-500">程式開發</div>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        </div>
+        <div class="p-2.5 bg-[#0f121d] rounded border border-cyan-900/40 flex justify-between items-center">
+          <div>
+            <div class="text-amber-300 font-bold">STOCK.EXE</div>
+            <div class="text-[10px] text-gray-500">美股分析</div>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        </div>
+        <div class="p-2.5 bg-[#0f121d] rounded border border-cyan-900/40 flex justify-between items-center">
+          <div>
+            <div class="text-rose-300 font-bold">BACKUP.EXE</div>
+            <div class="text-[10px] text-gray-500">NAS 監控</div>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 對話即時控制台 -->
+    <div class="bg-[#151926] border border-cyan-800/40 rounded-xl p-4 flex flex-col h-[380px]">
+      <div class="flex justify-between items-center pb-2 border-b border-gray-800">
+        <span class="text-xs font-mono text-cyan-400">ACTIVE CONSOLE</span>
+        <select id="agent-selector" class="bg-black/40 border border-gray-700 text-xs rounded px-2 py-1 text-gray-300">
+          <option value="BUDDY">BUDDY.EXE (隨身特助)</option>
+          <option value="DEV">DEV.EXE (全端編程)</option>
+          <option value="STOCK">STOCK.EXE (美股分析)</option>
+        </select>
+      </div>
+
+      <!-- 對話紀錄區 -->
+      <div id="chat-box" class="flex-1 overflow-y-auto space-y-3 py-3 text-xs">
+        <div class="bg-cyan-950/40 border border-cyan-800/30 p-2.5 rounded-lg text-cyan-200">
+          🤖 浩賢你好！Agent 系統已就緒。今晚返去開返 NAS 就可以將記憶庫串接埋一齊。而家有咩即刻想叫我搞？
+        </div>
+      </div>
+
+      <!-- 輸入區 -->
+      <div class="pt-2 border-t border-gray-800 flex gap-2">
+        <input type="text" id="user-input" placeholder="輸入指令或問題..." class="flex-1 bg-[#0b0d14] border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500" />
+        <button onclick="sendMessage()" class="bg-cyan-600 hover:bg-cyan-500 text-black font-bold px-4 py-2 rounded-lg text-xs transition">發送</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 預先填入你已開通的 Gemini API Key
+    const GEMINI_API_KEY = "AQ.Ab8RN6JuL8IkTw8b-VTCbAqFQpNUsd8HObHSJkPp4dJXOFkX1w";
+    let totalTokens = 0;
+
+    const PROMPTS = {
+      BUDDY: "你係巫生（浩賢）的專屬隨身特助。請用道地香港廣東話口語回覆，直奔主題，語氣爽快直接，唔好兜圈。",
+      DEV: "你係資深全端工程師。專門解決程式碼、架構同 NAS 部署問題，回覆請保持精簡、精確。",
+      STOCK: "你係客觀的投資分析員。專注於美股指數、ETF、財經指標與宏觀趨勢。"
+    };
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const agentType = document.getElementById("agent-selector").value;
+      appendMessage("user", text);
+      input.value = "";
+
+      const loadingId = appendMessage("system", "⏳ 正在處理中...");
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: text }] }],
+            systemInstruction: { parts: [{ text: PROMPTS[agentType] }] }
+          })
+        });
+
+        const data = await response.json();
+        removeMessage(loadingId);
+
+        if (data.candidates && data.candidates[0].content) {
+          const reply = data.candidates[0].content.parts[0].text;
+          appendMessage("bot", reply, agentType);
+
+          // 更新用量數據 (模擬估計)
+          totalTokens += text.length + reply.length;
+          document.getElementById("token-usage").innerText = totalTokens;
+        } else {
+          appendMessage("system", "⚠️ API 回應錯誤，請檢查網路或地區設定。");
+        }
+      } catch (err) {
+        removeMessage(loadingId);
+        appendMessage("system", "❌ 連線失敗: " + err.message);
+      }
+    }
+
+    function appendMessage(role, text, agent = "BOT") {
+      const chatBox = document.getElementById("chat-box");
+      const msgId = "msg-" + Date.now();
+      const div = document.createElement("div");
+      div.id = msgId;
+
+      if (role === "user") {
+        div.className = "bg-gray-800 text-white p-2.5 rounded-lg ml-auto max-w-[85%]";
+        div.innerText = text;
+      } else if (role === "bot") {
+        div.className = "bg-[#162032] border border-cyan-900/60 p-2.5 rounded-lg text-cyan-100 max-w-[90%]";
+        div.innerHTML = `<span class="font-mono text-[10px] text-cyan-400 block mb-1">[${agent}.EXE]</span>${text.replace(/\n/g, '<br>')}`;
+      } else {
+        div.className = "text-gray-500 text-[10px] font-mono text-center";
+        div.innerText = text;
+      }
+
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return msgId;
+    }
+
+    function removeMessage(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+  </script>
+</body>
+</html>
