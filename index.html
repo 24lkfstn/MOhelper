@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MO COMMAND CENTER</title>
     <style>
         :root {
@@ -10,7 +10,7 @@
             --panel-bg: rgba(10, 22, 40, 0.85);
             --border-dim: #1d3557;
             --text-main: #e0fbfc;
-            --text-dim: #5c7f99;
+            --text-dim: #6c8ea4;
             --accent-cyan: #00f0ff;
             --accent-magenta: #ff007f;
             --accent-green: #00ff66;
@@ -32,23 +32,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 12px;
         }
 
         .container {
             width: 100%;
-            max-width: 620px;
+            max-width: 650px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
 
         .panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-dim);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 14px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 210, 255, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 210, 255, 0.04);
+            backdrop-filter: blur(8px);
         }
 
         .panel-header {
@@ -68,29 +69,31 @@
             border-radius: 4px;
             border: 1px solid var(--accent-green);
             color: var(--accent-green);
+            background: rgba(0, 255, 102, 0.08);
         }
 
-        /* FUEL SECTION */
+        /* FUEL & BALANCE SECTION */
         .fuel-grid {
             display: grid;
-            grid-template-columns: 80px 1fr 1fr;
+            grid-template-columns: 85px 1fr 1fr;
             gap: 12px;
             align-items: center;
         }
 
         .circle-gauge {
-            width: 72px;
-            height: 72px;
+            width: 78px;
+            height: 78px;
             border-radius: 50%;
-            background: conic-gradient(var(--accent-green) 0% 100%, #152238 100% 100%);
+            background: conic-gradient(var(--accent-cyan) 0% 85%, #152238 85% 100%);
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: 0.5s ease;
         }
 
         .circle-inner {
-            width: 56px;
-            height: 56px;
+            width: 62px;
+            height: 62px;
             border-radius: 50%;
             background: #091322;
             display: flex;
@@ -99,42 +102,70 @@
             align-items: center;
         }
 
-        .circle-inner .pct { font-size: 0.85rem; font-weight: bold; color: var(--text-main); }
+        .circle-inner .pct { font-size: 0.85rem; font-weight: bold; color: var(--accent-cyan); }
         .circle-inner .lbl { font-size: 0.55rem; color: var(--text-dim); }
 
         .metric-card {
             background: rgba(13, 27, 46, 0.8);
             border: 1px solid rgba(0, 210, 255, 0.15);
             border-radius: 6px;
-            padding: 8px 10px;
+            padding: 10px;
         }
 
         .metric-card .title { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
         .metric-card .val { font-size: 0.95rem; font-weight: bold; color: var(--text-main); }
 
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .quick-actions::-webkit-scrollbar { display: none; }
+
+        .action-chip {
+            background: rgba(0, 210, 255, 0.08);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .action-chip:hover, .action-chip:active {
+            background: var(--accent-cyan);
+            color: #050b14;
+            font-weight: bold;
+        }
+
         /* 4 SECTORS */
         .nodes-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
 
         .node-box {
             background: rgba(13, 27, 46, 0.6);
             border: 1px solid rgba(0, 210, 255, 0.15);
             border-radius: 6px;
-            padding: 10px;
+            padding: 8px 10px;
+            transition: 0.3s;
         }
 
-        .node-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .node-name { font-size: 0.8rem; font-weight: bold; }
+        .node-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+        .node-name { font-size: 0.78rem; font-weight: bold; }
         .node-lkf { color: #ff4757; }
         .node-dev { color: var(--accent-magenta); }
         .node-buddy { color: var(--accent-cyan); }
         .node-life { color: var(--accent-green); }
 
         .node-state {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 1px 4px;
             border-radius: 3px;
@@ -144,17 +175,52 @@
         .node-state.active {
             border-color: var(--accent-green);
             color: var(--accent-green);
-            box-shadow: 0 0 6px var(--accent-green);
+            background: rgba(0, 255, 102, 0.15);
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
         }
 
-        .node-desc { font-size: 0.7rem; color: var(--text-dim); }
+        .node-desc { font-size: 0.68rem; color: var(--text-dim); }
+
+        /* TODO MODAL */
+        #todoModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .todo-box {
+            background: #091322;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            padding: 16px;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+        }
+        .todo-content {
+            background: #050b14;
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            padding: 12px;
+            max-height: 320px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.82rem;
+            color: var(--text-main);
+            margin: 12px 0;
+            line-height: 1.6;
+        }
 
         /* TERMINAL CONSOLE */
         .terminal-box {
-            background: rgba(7, 16, 30, 0.9);
+            background: rgba(7, 16, 30, 0.95);
             border: 1px solid var(--border-dim);
             border-radius: 6px;
-            height: 260px;
+            height: 280px;
             overflow-y: auto;
             padding: 12px;
             display: flex;
@@ -168,31 +234,37 @@
             border-left: 2px solid var(--accent-cyan);
             padding-left: 8px;
             color: var(--text-dim);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
         }
 
         .log-user {
             border-left: 2px solid var(--accent-warn);
             padding-left: 8px;
             color: var(--accent-warn);
+            background: rgba(255, 170, 0, 0.05);
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         .log-res {
             border-left: 2px solid var(--accent-green);
             padding-left: 8px;
             white-space: pre-wrap;
+            background: rgba(0, 255, 102, 0.03);
+            padding-top: 6px;
+            padding-bottom: 6px;
         }
 
         .log-res .agent-tag {
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             margin-bottom: 4px;
         }
 
         .input-group {
             display: flex;
             gap: 8px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .input-group input {
@@ -200,18 +272,20 @@
             background: #091322;
             border: 1px solid var(--border-dim);
             border-radius: 6px;
-            padding: 10px 12px;
+            padding: 10px 14px;
             color: var(--text-main);
             font-size: 0.85rem;
             font-family: var(--font-mono);
         }
 
         .input-group input:focus {
-            outline: 1px solid var(--accent-cyan);
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
         }
 
         .input-group button {
-            background: #00d2ff;
+            background: var(--accent-cyan);
             color: #050b14;
             font-weight: bold;
             border: none;
@@ -224,71 +298,75 @@
 
         .input-group button:hover {
             background: #33ddff;
-            box-shadow: 0 0 10px #00d2ff;
+            box-shadow: 0 0 12px #00d2ff;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- STATUS / BACKEND -->
+    <!-- BALANCE & TARGET HUD -->
     <div class="panel">
         <div class="panel-header">
-            <div class="panel-title">▶ MO_CORE [NAS DISK LINK]</div>
-            <div class="panel-status">CLOUDFLARE SECURE TUNNEL</div>
+            <div class="panel-title">⚡ DEEPSEEK CORE FUEL</div>
+            <div class="panel-status" id="tunnelStatus">SECURE TUNNEL ONLINE</div>
         </div>
         <div class="fuel-grid">
-            <div class="circle-gauge">
+            <div class="circle-gauge" id="fuelGauge">
                 <div class="circle-inner">
-                    <span class="pct">SYNC</span>
-                    <span class="lbl">NAS</span>
+                    <span class="pct" id="fuelPct">--%</span>
+                    <span class="lbl">REMAIN</span>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="title">Storage Target</div>
-                <div class="val">NAS /volume1</div>
+                <div class="title">DEEPSEEK BALANCE</div>
+                <div class="val" id="fuelVal" style="color:var(--accent-cyan);">¥ --</div>
             </div>
             <div class="metric-card">
-                <div class="title">Core Engine</div>
-                <div class="val" style="color:var(--accent-cyan); font-size: 0.8rem;">DeepSeek-V3</div>
+                <div class="title">STORAGE DEST</div>
+                <div class="val" style="color:var(--text-main); font-size:0.8rem;">NAS /volume1</div>
             </div>
         </div>
     </div>
 
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+        <div class="action-chip" onclick="quickSend('我黎緊有咩要做？')">📋 查待辦事項</div>
+        <div class="action-chip" onclick="openTodoModal()">📝 開啟待辦清單</div>
+        <div class="action-chip" onclick="quickSend('查閱最近勤務日誌')">🚒 查勤務記錄</div>
+        <div class="action-chip" onclick="refreshBalance()">🔄 更新 API 餘額</div>
+    </div>
+
     <!-- 4 SECTORS -->
     <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">● NODE ARRAY [4 SECTORS]</div>
-            <div style="font-size: 0.7rem; color: var(--text-dim);">AUTO-ARCHIVING ACTIVE</div>
-        </div>
         <div class="nodes-grid">
             <div class="node-box" id="node-LKFSTN">
                 <div class="node-top">
                     <span class="node-name node-lkf">LKFSTN.EXE</span>
                     <span class="node-state" id="st-LKFSTN">IDLE</span>
                 </div>
-                <div class="node-desc">局內勤務 / 出更日誌 💾</div>
+                <div class="node-desc">局內勤務 / FASA 🚒</div>
             </div>
             <div class="node-box" id="node-BUDDY">
                 <div class="node-top">
                     <span class="node-name node-buddy">BUDDY.EXE</span>
                     <span class="node-state" id="st-BUDDY">IDLE</span>
                 </div>
-                <div class="node-desc">隨身特助 / 即時軍師 ⚡</div>
+                <div class="node-desc">隨身特助 / 軍師 ⚡</div>
             </div>
             <div class="node-box" id="node-DEV">
                 <div class="node-top">
                     <span class="node-name node-dev">DEV.EXE</span>
                     <span class="node-state" id="st-DEV">IDLE</span>
                 </div>
-                <div class="node-desc">NAS / 系統代碼架構 💻</div>
+                <div class="node-desc">NAS / Docker 架構 💻</div>
             </div>
             <div class="node-box" id="node-LIFE">
                 <div class="node-top">
                     <span class="node-name node-life">LIFE.EXE</span>
                     <span class="node-state" id="st-LIFE">IDLE</span>
                 </div>
-                <div class="node-desc">寵物 / 水族 / 個人資料 💾</div>
+                <div class="node-desc">私人檔案 / 貓狗水族 🌱</div>
             </div>
         </div>
     </div>
@@ -296,26 +374,36 @@
     <!-- TERMINAL -->
     <div class="panel">
         <div class="panel-header">
-            <div class="panel-title">⚡ MO_COMMAND_CENTER</div>
-            <div class="panel-status">NAS LIVE TUNNEL</div>
+            <div class="panel-title">▶ TERMINAL DISPATCHER</div>
+            <div style="font-size:0.7rem; color:var(--text-dim);">DIRECT NAS LOGGING</div>
         </div>
         <div class="terminal-box" id="chatArea">
             <div class="log-sys">
-                [MO_CORE // SECURE LINK ESTABLISHED]<br>
-                浩賢你好！網頁版已透過 Cloudflare 安全隧道接通屋企 NAS。<br>
-                網頁上的所有日誌與指令，都會直接寫入你 NAS 的硬碟（logs_station / logs_life）！
+                [SYSTEM READY] 巫浩賢你好，終端已連線。<br>
+                你可以點擊上方快捷鍵，或者直接輸入指令或備忘。
             </div>
         </div>
         <div class="input-group">
-            <input type="text" id="userInput" placeholder="發放任何指令、勤務筆記或問題..." onkeydown="if(event.key==='Enter') executeCommand()">
+            <input type="text" id="userInput" placeholder="輸入指令、勤務筆記或問題..." onkeydown="if(event.key==='Enter') executeCommand()">
             <button onclick="executeCommand()">EXEC</button>
         </div>
     </div>
 </div>
 
+<!-- TODO MODAL WINDOW -->
+<div id="todoModal">
+    <div class="todo-box">
+        <div class="panel-header">
+            <div class="panel-title">📝 NAS TODO_LIST.MD</div>
+            <div class="action-chip" onclick="closeTodoModal()">✕ 關閉</div>
+        </div>
+        <div class="todo-content" id="todoModalBody">載入中...</div>
+    </div>
+</div>
+
 <script>
-    // 你的專屬 NAS Cloudflare 穿透接口 (依據 mo_tunnel 日誌生成之網址)
-   const BACKEND_URL = "https://shapes-moving-regulatory-stations.trycloudflare.com/api/chat";
+    // 你的最新專屬 NAS Cloudflare 穿透接口
+    const BASE_URL = "https://campbell-nurse-helicopter-careful.trycloudflare.com";
 
     function setSectorActive(sector) {
         ['LKFSTN', 'BUDDY', 'DEV', 'LIFE'].forEach(s => {
@@ -327,6 +415,48 @@
         });
     }
 
+    async function refreshBalance() {
+        try {
+            const res = await fetch(`${BASE_URL}/api/balance`, {
+                headers: { "bypass-tunnel-reminder": "true" }
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('fuelVal').innerText = `¥ ${data.total}`;
+                document.getElementById('fuelPct').innerText = `${data.percent}%`;
+                const gauge = document.getElementById('fuelGauge');
+                gauge.style.background = `conic-gradient(var(--accent-cyan) 0% ${data.percent}%, #152238 ${data.percent}% 100%)`;
+            }
+        } catch (e) {
+            console.log("Balance fetch error:", e);
+        }
+    }
+
+    async function openTodoModal() {
+        const modal = document.getElementById('todoModal');
+        const body = document.getElementById('todoModalBody');
+        modal.style.display = 'flex';
+        body.innerText = "讀取 NAS 硬碟中...";
+        try {
+            const res = await fetch(`${BASE_URL}/api/todo`, {
+                headers: { "bypass-tunnel-reminder": "true" }
+            });
+            const data = await res.json();
+            body.innerText = data.todo || "暫無待辦事項";
+        } catch (e) {
+            body.innerText = "無法載入待辦清單：" + e.message;
+        }
+    }
+
+    function closeTodoModal() {
+        document.getElementById('todoModal').style.display = 'none';
+    }
+
+    function quickSend(txt) {
+        document.getElementById('userInput').value = txt;
+        executeCommand();
+    }
+
     async function executeCommand() {
         const input = document.getElementById('userInput');
         const text = input.value.trim();
@@ -334,23 +464,21 @@
 
         const chatArea = document.getElementById('chatArea');
 
-        // 使用者訊息顯示
         const userDiv = document.createElement('div');
         userDiv.className = 'log-user';
-        userDiv.innerHTML = `&gt; USER_INPUT<br>${text}`;
+        userDiv.innerHTML = `&gt; USER<br>${text}`;
         chatArea.appendChild(userDiv);
         input.value = "";
         chatArea.scrollTop = chatArea.scrollHeight;
 
-        // 載入提示
         const loadDiv = document.createElement('div');
         loadDiv.className = 'log-sys';
-        loadDiv.innerText = ">>> TRANSMITTING TO NAS HARD DRIVE VIA TUNNEL...";
+        loadDiv.innerText = ">>> TRANSMITTING TO NAS HARD DRIVE...";
         chatArea.appendChild(loadDiv);
         chatArea.scrollTop = chatArea.scrollHeight;
 
         try {
-            const res = await fetch(BACKEND_URL, {
+            const res = await fetch(`${BASE_URL}/api/chat`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -364,26 +492,24 @@
 
             if (data.reply) {
                 const agent = data.agent || "BUDDY";
-                const cleanReply = data.reply;
-
                 setSectorActive(agent);
 
                 const badgeMap = {
-                    "LKFSTN": "🚒 [LKFSTN.EXE // 勤務日誌已存入 NAS]",
-                    "LIFE": "🌱 [LIFE.EXE // 私人檔案已存入 NAS]",
+                    "LKFSTN": "🚒 [LKFSTN.EXE // 勤務日誌已存檔]",
+                    "LIFE": "🌱 [LIFE.EXE // 生活檔案已存檔]",
                     "DEV": "💻 [DEV.EXE // 系統技術架構]",
                     "BUDDY": "⚡ [BUDDY.EXE // 隨身特助]"
                 };
 
                 const resDiv = document.createElement('div');
                 resDiv.className = 'log-res';
-                resDiv.innerHTML = `<div class="agent-tag" style="color:var(--accent-cyan);">${badgeMap[agent] || agent}</div><div>${cleanReply}</div>`;
+                resDiv.innerHTML = `<div class="agent-tag" style="color:var(--accent-cyan);">${badgeMap[agent] || agent}</div><div>${data.reply}</div>`;
                 chatArea.appendChild(resDiv);
             } else {
                 const errDiv = document.createElement('div');
                 errDiv.className = 'log-sys';
                 errDiv.style.color = 'var(--accent-warn)';
-                errDiv.innerText = `▲ 接口回傳異常：${JSON.stringify(data)}`;
+                errDiv.innerText = `▲ 接口異常：${JSON.stringify(data)}`;
                 chatArea.appendChild(errDiv);
             }
         } catch (e) {
@@ -396,7 +522,10 @@
         }
 
         chatArea.scrollTop = chatArea.scrollHeight;
+        refreshBalance();
     }
+
+    refreshBalance();
 </script>
 </body>
 </html>
