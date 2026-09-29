@@ -53,7 +53,7 @@
 
   <main class="p-3 space-y-4 max-w-md mx-auto">
 
-    <!-- 1. FUEL (TOKEN BALANCE) 油缸模組 -->
+    <!-- 1. FUEL (TOKEN BALANCE) 核心圓環油缸模組 -->
     <div class="bg-[#090d1a]/85 neon-border-cyan rounded-xl p-4 relative overflow-hidden">
       <div class="flex justify-between items-center border-b border-cyan-950 pb-2 mb-3">
         <span class="text-xs text-cyan-400 flex items-center gap-1">
@@ -86,8 +86,8 @@
             <div class="text-cyan-300 font-bold text-sm" id="req-count">0 次</div>
           </div>
           <div class="bg-[#05070e] p-2 rounded border border-gray-800">
-            <div class="text-[9px] text-gray-500">CURRENT ROUTE</div>
-            <div class="text-cyan-400 font-bold text-sm" id="current-agent">MO_CORE</div>
+            <div class="text-[9px] text-gray-500">ACTIVE CORE</div>
+            <div class="text-cyan-400 font-bold text-[10px] truncate" id="current-agent">AUTO-ROUTING</div>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@
           <span class="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
           NODE ARRAY [4 SECTORS]
         </span>
-        <span class="text-[10px] text-cyan-400">CORE: GEMINI 3.8</span>
+        <span class="text-[10px] text-cyan-400">SMART FAILOVER</span>
       </div>
 
       <div class="grid grid-cols-2 gap-2 text-xs">
@@ -161,14 +161,14 @@
           <span class="text-pink-500">⚡</span> MO_COMMAND_CENTER
         </span>
         <span class="text-[10px] text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/50">
-          CEO ROUTING (3.8 FLASH)
+          AUTO FAILOVER ACTIVE
         </span>
       </div>
 
       <div id="chat-box" class="flex-1 overflow-y-auto space-y-2.5 py-2.5 text-xs">
         <div class="bg-cyan-950/30 border-l-2 border-cyan-400 p-2 text-cyan-200">
-          <span class="text-[9px] text-cyan-400 block font-bold">[MO_CORE // CEO READY]</span>
-          浩賢你好！MO 系統總指揮大腦已就位（核心：Gemini 3.8-Flash）。直接輸入任何指示，大腦會自動分流執行。
+          <span class="text-[9px] text-cyan-400 block font-bold">[MO_CORE // AUTO DISPATCH READY]</span>
+          浩賢你好！自動調度引擎已就緒。系統會優先使用 3.8-Flash，若遇機房塞車會自動於背景切換備援線路，確保永不卡死。
         </div>
       </div>
 
@@ -232,6 +232,23 @@
 - 如果是複雜問題，先回答結論，再以點列方式給出具體建議。
 `;
 
+    // 核心 API 請求函數
+    async function requestModel(modelName, text, apiKey) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: text }] }],
+          systemInstruction: { parts: [{ text: DISPATCHER_SYSTEM_PROMPT }] }
+        })
+      });
+      return await response.json();
+    }
+
     async function sendMessage() {
       const apiKey = getStoredKey();
       if (!apiKey) {
@@ -246,53 +263,57 @@
       appendMessage("user", text);
       input.value = "";
 
-      const loadingId = appendMessage("system", ">>> ROUTING VIA MO_CORE (GEMINI 3.8)...");
+      const loadingId = appendMessage("system", ">>> ROUTING VIA MO_CORE...");
 
-      try {
-        const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent";
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "x-goog-api-key": apiKey
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: text }] }],
-            systemInstruction: { parts: [{ text: DISPATCHER_SYSTEM_PROMPT }] }
-          })
-        });
+      // 自動後備佇列：優先用 3.8，遇到塞車或不支援自動輪替
+      const fallbackQueue = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-3.5-flash"];
+      let successfulData = null;
+      let activeModel = "";
 
-        const data = await response.json();
-        removeMessage(loadingId);
+      for (let model of fallbackQueue) {
+        try {
+          let res = await requestModel(model, text, apiKey);
 
-        if (data.candidates && data.candidates[0].content) {
-          const rawReply = data.candidates[0].content.parts[0].text;
-          
-          let assignedAgent = "BUDDY";
-          let cleanReply = rawReply;
-
-          const match = rawReply.match(/^<<<([A-Z]+)>>>\s*/);
-          if (match) {
-            assignedAgent = match[1];
-            cleanReply = rawReply.replace(match[0], "");
+          // 若遇 503 (High Demand 塞車)，自動等 1 秒重試一次
+          if (res.error && res.error.code === 503) {
+            await new Promise(r => setTimeout(r, 1000));
+            res = await requestModel(model, text, apiKey);
           }
 
-          highlightAgent(assignedAgent);
-
-          appendMessage("bot", cleanReply, assignedAgent);
-
-          totalTokens += text.length + cleanReply.length;
-          requestCount++;
-          document.getElementById("token-usage").innerText = totalTokens;
-          document.getElementById("req-count").innerText = requestCount + " 次";
-          document.getElementById("current-agent").innerText = assignedAgent + ".EXE";
-        } else {
-          const errMsg = data.error ? data.error.message : JSON.stringify(data);
-          appendMessage("system", "⚠️ ERR: " + errMsg);
+          if (res.candidates && res.candidates[0].content) {
+            successfulData = res;
+            activeModel = model;
+            break; // 成功即刻跳出
+          }
+        } catch (err) {
+          console.warn(`[MO_CORE] ${model} unavailable, trying fallback...`);
         }
-      } catch (err) {
-        removeMessage(loadingId);
-        appendMessage("system", "❌ CONNECTION_LOST: " + err.message);
+      }
+
+      removeMessage(loadingId);
+
+      if (successfulData) {
+        const rawReply = successfulData.candidates[0].content.parts[0].text;
+        
+        let assignedAgent = "BUDDY";
+        let cleanReply = rawReply;
+
+        const match = rawReply.match(/^<<<([A-Z]+)>>>\s*/);
+        if (match) {
+          assignedAgent = match[1];
+          cleanReply = rawReply.replace(match[0], "");
+        }
+
+        highlightAgent(assignedAgent);
+        appendMessage("bot", cleanReply, assignedAgent);
+
+        totalTokens += text.length + cleanReply.length;
+        requestCount++;
+        document.getElementById("token-usage").innerText = totalTokens;
+        document.getElementById("req-count").innerText = requestCount + " 次";
+        document.getElementById("current-agent").innerText = `${assignedAgent} (${activeModel.replace('gemini-', '')})`;
+      } else {
+        appendMessage("system", "⚠️ 所有伺服器線路暫時繁忙，請稍候重試。");
       }
     }
 
